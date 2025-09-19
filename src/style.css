@@ -1,1 +1,23 @@
 @import 'tailwindcss';
+
+.bg-columnBackgroundColor {
+  --tw-bg-opacity: 1;
+  background-color: oklch(93.2% 0.032 255.585);
+}
+
+.bg-mainBackgroundColor {
+  --tw-bg-opacity: 1;
+  background-color: oklch(88.2% 0.059 254.128);
+}
+
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar:horizontal {
+  height: 16px;
+}
+::-webkit-scrollbar-thumb {
+  border-radius: 0.75rem;
+  --tw-bg-opacity: 1;
+  background-color: oklch(80.9% 0.105 251.813);
+}
