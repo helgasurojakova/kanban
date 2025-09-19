@@ -1,6 +1,9 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import type { Column, ItemUuid, Task } from '../types/kanban'
 import { TaskCard } from './TaskCard'
+import { SortableContext, useSortable } from '@dnd-kit/sortable'
+import { COLUMN } from './constants'
+import { CSS } from '@dnd-kit/utilities'
 
 type Props = {
   taskList: Task[]
@@ -22,10 +25,51 @@ export const ColumnContainer: React.FC<Props> = ({
   deleteTask,
 }) => {
   const [isEditMode, setEditMode] = useState(false)
+  const taskListUuids = useMemo(
+    () => taskList.map((task) => task.uuid),
+    [taskList]
+  )
+
+  const {
+    setNodeRef,
+    attributes,
+    listeners,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
+    id: column.uuid,
+    data: {
+      type: COLUMN,
+      column,
+    },
+    disabled: isEditMode,
+  })
+
+  const style = {
+    transition,
+    transform: CSS.Transform.toString(transform),
+  }
+
+  if (isDragging) {
+    return (
+      <div
+        ref={setNodeRef}
+        className="w-[350px] h-[500px] bg-columnBackgroundColor flex flex-col opacity-40 border-2 border-blue-500 max-h-[500px] rounded-md"
+        style={style}
+      />
+    )
+  }
 
   return (
-    <div className="w-[350px] h-[500px] max-h-[500px] rounded-md flex flex-col bg-columnBackgroundColor">
+    <div
+      ref={setNodeRef}
+      style={style}
+      className="w-[350px] h-[500px] max-h-[500px] rounded-md flex flex-col bg-columnBackgroundColor"
+    >
       <div
+        {...attributes}
+        {...listeners}
         onClick={(event) => {
           // @ts-ignore
           if (event.target.nodeName === 'DIV') setEditMode(true)
@@ -70,14 +114,16 @@ export const ColumnContainer: React.FC<Props> = ({
         </div>
       </div>
       <div className="flex flex-grow flex-col gap-4 p-2 overflow-x-hidden overflow-y-auto">
-        {taskList.map((task) => (
-          <TaskCard
-            key={task.uuid}
-            task={task}
-            deleteTask={deleteTask}
-            updateTask={updateTask}
-          />
-        ))}
+        <SortableContext items={taskListUuids}>
+          {taskList.map((task) => (
+            <TaskCard
+              key={task.uuid}
+              task={task}
+              deleteTask={deleteTask}
+              updateTask={updateTask}
+            />
+          ))}
+        </SortableContext>
       </div>
     </div>
   )
